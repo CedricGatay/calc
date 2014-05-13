@@ -21,6 +21,7 @@ public class Calc {
     public List<String> getDisplays(){
         for (Operations.Operation operation : operations) {
             computedValue = operation.apply(computedValue);
+            //don't like this instanceof !
             if (operation instanceof Operations.Display){
                 displays.add(String.valueOf(computedValue));
             }

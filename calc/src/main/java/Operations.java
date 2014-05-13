@@ -5,153 +5,164 @@ import java.util.regex.Pattern;
  * @author cgatay
  */
 public class Operations {
-    
-    public static Operation parse(String input){
-        if (Add.matches(input)){
-            return new Add(input);
+
+    public static Operation parse(String input) {
+        for (Op op : Op.values()) {
+            if (op.matches(input)){
+                return op.create(input);
+            }
         }
-        if (Substract.matches(input)){
-            return new Substract(input);
-        }
-        if (Multiply.matches(input)){
-            return new Multiply(input);
-        }
-        if (Divide.matches(input)){
-            return new Divide(input);
-        }
-        if (Display.matches(input)){
-            return new Display();
-        }
-        return new Noop(); 
+        return new Noop();
     }
 
-    public static class Noop implements Operation{
+    public static class Noop implements Operation<Void> {
         @Override
         public Double apply(final Double previousValue) {
             return previousValue;
         }
+
+        @Override
+        public Void with(final Double value) {
+            return null;
+        }
     }
 
-    public static class Display implements Operation{
-        static Pattern regex = Pattern.compile("DISPLAY");
+    public static class Display implements Operation<Void> {
 
         @Override
         public Double apply(final Double previousValue) {
             return previousValue;
         }
 
-        public static boolean matches(String input){
-            return regex.matcher(input).matches();
+        @Override
+        public Void with(final Double value) {
+            return null;
         }
     }
 
 
+    public static class Add implements Operation<Add> {
+        private Double value;
+
+        Add() {
+        }
 
 
-    public static class Add implements Operation{
-        private final Double value;
-        static Pattern regex = Pattern.compile("ADD ([.0-9]+)");
-        
-        Add(String input){
-            final Matcher matcher = regex.matcher(input);
-            if (matcher.matches()){
-                this.value = Double.valueOf(matcher.group(1));
-            }else{
-                throw new RuntimeException("Could not parse input");
-            }
-        }
-        
-        public static boolean matches(String input){
-            return regex.matcher(input).matches();
-        }
-        
-        
         @Override
-        public Double apply(Double previousValue){
-            return previousValue + value;   
+        public Double apply(Double previousValue) {
+            return previousValue + value;
         }
-    }
-    public static class Substract implements Operation{
-        private final Double value;
-        static Pattern regex = Pattern.compile("SUBSTRACT ([.0-9]+)");
-        
-        Substract(String input){
-            final Matcher matcher = regex.matcher(input);
-            if (matcher.matches()){
-                this.value = Double.valueOf(matcher.group(1));
-            }else{
-                throw new RuntimeException("Could not parse input");
-            }
-        }
-        
-        public static boolean matches(String input){
-            return regex.matcher(input).matches();
-        }
-        
-        
-        @Override
-        public Double apply(Double previousValue){
-            return previousValue - value;   
-        }
-    }
-    public static class Multiply implements Operation{
-        private final Double value;
-        static Pattern regex = Pattern.compile("MULTIPLY BY ([.0-9]+)");
 
-        Multiply(String input){
-            final Matcher matcher = regex.matcher(input);
-            if (matcher.matches()){
-                this.value = Double.valueOf(matcher.group(1));
-            }else{
-                throw new RuntimeException("Could not parse input");
-            }
-        }
-        
-        public static boolean matches(String input){
-            return regex.matcher(input).matches();
-        }
-        
-        
         @Override
-        public Double apply(Double previousValue){
-            return previousValue * value;   
+        public Add with(final Double value) {
+            this.value = value;
+            return this;
         }
     }
 
-    public static class Divide implements Operation{
-        private final Double value;
-        static Pattern regex = Pattern.compile("DIVIDE BY ([0-9.]+)");
+    public static class Substract implements Operation<Substract> {
+        private Double value;
 
-        Divide(String input){
-            final Matcher matcher = regex.matcher(input);
-            if (matcher.matches()) {
-                this.value = Double.valueOf(matcher.group(1));
-            }else{
-                throw new RuntimeException("Could not parse input");
-            }
-        }
-
-        public static boolean matches(String input){
-            return regex.matcher(input).matches();
+        Substract() {
         }
 
 
         @Override
-        public Double apply(Double previousValue){
-            if (value == 0d){
+        public Double apply(Double previousValue) {
+            return previousValue - value;
+        }
+
+        @Override
+        public Substract with(final Double value) {
+            this.value = value;
+            return this;
+        }
+    }
+
+    public static class Multiply implements Operation<Multiply> {
+        private  Double value;
+
+        Multiply() {
+        }
+
+
+        @Override
+        public Double apply(Double previousValue) {
+            return previousValue * value;
+        }
+
+        @Override
+        public Multiply with(final Double value) {
+            this.value = value;
+            return this;
+        }
+    }
+
+    public static class Divide implements Operation<Divide> {
+        private Double value;
+
+        Divide() {
+        }
+
+
+        @Override
+        public Double apply(Double previousValue) {
+            if (value == 0d) {
                 throw new CalcException();
             }
             return previousValue / value;
         }
+
+        @Override
+        public Divide with(final Double value) {
+            this.value = value;
+            return this;
+        }
     }
 
 
+    public enum Op {
+        ADD("ADD ([.0-9]+)", Add.class),
+        SUBSTRACT("SUBSTRACT ([.0-9]+)", Substract.class),
+        MULTIPLY("MULTIPLY BY ([.0-9]+)", Multiply.class),
+        DIVIDE("DIVIDE BY ([0-9.]+)", Divide.class),
+        DISPLAY("DISPLAY", Display.class);
+        private final Pattern pattern;
+        private final Class<? extends Operation> displayClass;
 
+        Op(final String pattern, final Class<? extends Operation> displayClass) {
+            this.displayClass = displayClass;
+            this.pattern = Pattern.compile(pattern);
+        }
+
+        public boolean matches(String input) {
+            return pattern.matcher(input).matches();
+        }
+
+        public Operation create(final String input) {
+            if (this == DISPLAY){
+                return new Display();
+            }
+            final Matcher matcher = pattern.matcher(input);
+            if (matcher.matches()) {
+                Double value = Double.valueOf(matcher.group(1));
+                try {
+                    return (Operation) displayClass.newInstance().with(value);
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            return new Noop();
+        }
+    }
 
     /**
      * @author cgatay
      */
-    public static interface Operation {
+    public static interface Operation<T> {
         Double apply(Double previousValue);
+        T with(Double value);
     }
 }
