@@ -21,7 +21,7 @@ public class MainTest {
         Calc calc = new Calc(ops);
         List<String> displays = calc.getDisplays();
         assertThat(displays).hasSize(1);
-        assertThat(displays.get(0)).isEqualTo("9");
+        assertThat(displays.get(0)).isEqualTo("9.0");
     }
 
     @Test
@@ -61,7 +61,7 @@ public class MainTest {
         Calc calc = new Calc(ops);
         final List<String> displays = calc.getDisplays();
         assertThat(displays).hasSize(1);
-        assertThat(displays.get(0)).isEqualTo(5);
+        assertThat(displays.get(0)).isEqualTo("5.0");
     }
 
     @Test
@@ -88,7 +88,7 @@ public class MainTest {
         Calc calc = new Calc(ops);
         List<String> displays = calc.getDisplays();
         assertThat(displays).hasSize(2);
-        assertThat(displays.get(0)).isEqualTo("9");
+        assertThat(displays.get(0)).isEqualTo("9.0");
         assertThat(displays.get(1)).isEqualTo("4.5");
         
     }

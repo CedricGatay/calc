@@ -1,3 +1,4 @@
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -49,11 +50,12 @@ public class Operations {
 
     public static class Add implements Operation{
         private final Double value;
-        static Pattern regex = Pattern.compile("ADD ([.0-9])+");
+        static Pattern regex = Pattern.compile("ADD ([.0-9]+)");
         
         Add(String input){
-            if (matches(input)){
-                this.value = Double.valueOf(regex.matcher(input).group(1));
+            final Matcher matcher = regex.matcher(input);
+            if (matcher.matches()){
+                this.value = Double.valueOf(matcher.group(1));
             }else{
                 throw new RuntimeException("Could not parse input");
             }
@@ -71,11 +73,12 @@ public class Operations {
     }
     public static class Substract implements Operation{
         private final Double value;
-        static Pattern regex = Pattern.compile("SUBSTRACT BY ([.0-9])+");
+        static Pattern regex = Pattern.compile("SUBSTRACT ([.0-9]+)");
         
         Substract(String input){
-            if (matches(input)){
-                this.value = Double.valueOf(regex.matcher(input).group(1));
+            final Matcher matcher = regex.matcher(input);
+            if (matcher.matches()){
+                this.value = Double.valueOf(matcher.group(1));
             }else{
                 throw new RuntimeException("Could not parse input");
             }
@@ -93,11 +96,12 @@ public class Operations {
     }
     public static class Multiply implements Operation{
         private final Double value;
-        static Pattern regex = Pattern.compile("MULTIPLY BY ([.0-9])+");
+        static Pattern regex = Pattern.compile("MULTIPLY BY ([.0-9]+)");
 
         Multiply(String input){
-            if (matches(input)){
-                this.value = Double.valueOf(regex.matcher(input).group(1));
+            final Matcher matcher = regex.matcher(input);
+            if (matcher.matches()){
+                this.value = Double.valueOf(matcher.group(1));
             }else{
                 throw new RuntimeException("Could not parse input");
             }
@@ -116,11 +120,12 @@ public class Operations {
 
     public static class Divide implements Operation{
         private final Double value;
-        static Pattern regex = Pattern.compile("DIVIDE BY ([.0-9])+");
+        static Pattern regex = Pattern.compile("DIVIDE BY ([0-9.]+)");
 
         Divide(String input){
-            if (matches(input)){
-                this.value = Double.valueOf(regex.matcher(input).group(1));
+            final Matcher matcher = regex.matcher(input);
+            if (matcher.matches()) {
+                this.value = Double.valueOf(matcher.group(1));
             }else{
                 throw new RuntimeException("Could not parse input");
             }
