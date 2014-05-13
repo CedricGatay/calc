@@ -1,3 +1,5 @@
+package exceptions;
+
 /**
  * Marker exception when something wrong occurs
  * Only divide by zero is handled

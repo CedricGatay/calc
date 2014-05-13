@@ -1,3 +1,7 @@
+import exceptions.ComputeException;
+import operations.Operation;
+import operations.OperationsParser;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -5,7 +9,7 @@ import java.util.List;
  * @author cgatay
  */
 public class Calc {
-    List<Operations.Operation> operations;
+    List<Operation> operations;
     List<String> displays;
     Double computedValue;
     public Calc(final List<String> ops) {
@@ -14,16 +18,19 @@ public class Calc {
         computedValue = 0d;
         
         for (String op : ops) {
-            operations.add(Operations.parse(op));
+            final Operation operation = OperationsParser.parse(op);
+            if (operation != null) {
+                operations.add(operation);
+            }
         }
     }
 
     public List<String> getDisplays(){
-        for (Operations.Operation operation : operations) {
-            computedValue = operation.apply(computedValue);
-            //don't like this instanceof !
-            if (operation instanceof Operations.Display){
-                displays.add(String.valueOf(computedValue));
+        for (Operation operation : operations) {
+            try {
+                computedValue = operation.apply(computedValue);
+            } catch (ComputeException e) {
+                displays.add(String.valueOf(e.getValue()));
             }
         }
         //walk ops and populate displays
